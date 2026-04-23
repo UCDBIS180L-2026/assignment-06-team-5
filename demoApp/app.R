@@ -12,6 +12,9 @@ library(tidyverse)
 
 data(iris)
 
+iris <-pivot_longer(iris, c(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width), names_to = "trait", values_to = "value")
+
+
 # Define UI for application that draws a box plot
 ui <- fluidPage( #create the overall page
     
@@ -19,19 +22,18 @@ ui <- fluidPage( #create the overall page
     titlePanel("Iris Data"),
     
     # Some helpful information
-    helpText("This application creates a boxplot to show difference between",
-             "iris species.  Please use the radio box below to choose a trait",
+    helpText("This application creates a violin plot to show difference between",
+             "traits.  Please use the radio box below to choose a species",
              "for plotting"),
     
     # Sidebar with a radio box to input which trait will be plotted
     sidebarLayout(
       sidebarPanel(
-        radioButtons("trait", #the input variable that the value will go into
-                     "Choose a trait to display:",
-                     c("Sepal.Length",
-                       "Sepal.Width",
-                       "Petal.Length",
-                       "Petal.Width")
+        radioButtons("species", #the input variable that the value will go into
+                     "Choose a species to display:",
+                     c("setosa",
+                       "versicolor",
+                       "virginica")
         )),
       
       # Show a plot of the generated distribution
@@ -54,18 +56,19 @@ server <- function(input, output) {
   
   output$boxPlot <- renderPlot({
     
-    plotTrait <- as.name(input$trait) # convert string to name
+    plotSpecies <- as.name(input$species) # convert string to name
     
     # set up the plot
-    pl <- ggplot(data = iris,
-                 aes(x=Species,
-                     y= !! plotTrait, # !! to use the column names contained in plotTrait
-                     fill=Species
-                 )
-    )
+    pl <- iris %>%
+      filter(Species == plotSpecies) %>%
+      ggplot(aes(x= trait,
+                 y= value, 
+                 fill= trait
+      )
+      )
     
     # draw the boxplot for the specified trait
-    pl + geom_boxplot()
+    pl + geom_violin()
   })
 }
 
