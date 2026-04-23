@@ -1,7 +1,7 @@
 library(shiny)
 # other libraries here
 
-rice <- read_csv("RiceDiversity.44K.MSU6.Phenotypes.csv")
+rice <- read_csv("teamApp/RiceDiversity.44K.MSU6.Phenotypes.csv")
 
 rice <- as_tibble(rice)
 summary(rice)
