@@ -1,13 +1,17 @@
 library(shiny)
 # other libraries here
 
-rice <- read_csv("RiceDiversity.44K.MSU6.Phenotypes.csv")
+rice <- read_csv("../teamApp/RiceDiversity.44K.MSU6.Phenotypes.csv") %>% 
+  rename("ID"=NSFTVID)
+
+load("../teamApp/adm_results.Rdata")
+
+pops <- select(.data=adm_results, "ID"=ID, "pop"=assignedPop) 
+
+rice <- left_join(rice, pops)
 
 rice <- as_tibble(rice)
 summary(rice)
-
-# data loading and one-time processing here
-rice <- read_csv("./teamApp/RiceDiversity.44K.MSU6.Phenotypes.csv")
 
 # Define UI for application 
 ui <- fluidPage(#create the overall page
@@ -42,10 +46,19 @@ ui <- fluidPage(#create the overall page
 # Define server logic 
 server <- function(input, output) {
   
-  rice %>% 
-    ggplot(rice, mapping = aes(x = trait1,
-                               y = trait1)) +
-    geom_point()
+  output$pointPlot <- renderPlot({
+    
+    plotTrait1 <- as.name(input$trait1)
+    plotTrait2 <- as.name(input$trait2)
+  
+    pl <- rice %>% 
+      ggplot(rice, mapping = aes(x = !! plotTrait1,
+                                 y = !! plotTrait2
+                             ))
+    
+    pl + geom_point()
+  
+  })
 }
 
 # Run the application 
