@@ -2,12 +2,12 @@ library(shiny)
 library(tidyverse)
 # other libraries here
 
-rice <- read_csv("RiceDiversity.44K.MSU6.Phenotypes.csv") %>% 
+rice <- read_csv("./RiceDiversity.44K.MSU6.Phenotypes.csv") %>% 
   rename("ID"=NSFTVID)
-load("adm_results.Rdata")
+load("./adm_results.Rdata")
 
-rice <- left_join(rice, select(.data=adm_results, "ID"=ID, "pop"=assignedPop))
-rice <- as_tibble(rice)
+rice <- left_join(rice, select(.data=adm_results, "ID"=ID, "pop"=assignedPop)) %>% 
+  select(pop,where(is.numeric))
 summary(rice)
 
 # Define UI for application 
@@ -26,11 +26,11 @@ ui <- fluidPage(#create the overall page
     sidebarPanel(
       selectInput("trait1", #the input variable that the value will go into
                    "Choose the first trait to display:",
-                   colnames(rice)
+                   colnames(rice)[colnames(rice) != "pop"]
       ),
       selectInput("trait2", #the input variable that the value will go into
                   "Choose the second trait to display:",
-                  colnames(rice)
+                  colnames(rice)[colnames(rice) != "pop"]
       ),
       checkboxGroupInput("pops",
                          "Choose population(s) to plot:",
@@ -51,13 +51,16 @@ server <- function(input, output) {
     
     plotTrait1 <- as.name(input$trait1)
     plotTrait2 <- as.name(input$trait2)
+   # plotPops <- as.name(input$pops)
   
     pl <- rice %>% 
+      filter(pop %in% input$pops) %>% 
       ggplot(rice, mapping = aes(x = !! plotTrait1,
-                                 y = !! plotTrait2
+                                 y = !! plotTrait2,
+                                 fill=pop
                              ))
     
-    pl + geom_point()
+    pl + geom_point() + scale_fill_discrete()
   
   })
 }
