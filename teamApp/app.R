@@ -8,7 +8,6 @@ load("./adm_results.Rdata")
 
 rice <- left_join(rice, select(.data=adm_results, "ID"=ID, "pop"=assignedPop)) %>% 
   select(pop,where(is.numeric))
-summary(rice)
 
 # Define UI for application 
 ui <- fluidPage(#create the overall page
@@ -26,15 +25,18 @@ ui <- fluidPage(#create the overall page
     sidebarPanel(
       selectInput("trait1", #the input variable that the value will go into
                    "Choose the first trait to display:",
-                   colnames(rice)[colnames(rice) != "pop"]
+                   colnames(rice)[colnames(rice) != "pop"],
+                  selected = "Amylose content"
       ),
       selectInput("trait2", #the input variable that the value will go into
                   "Choose the second trait to display:",
-                  colnames(rice)[colnames(rice) != "pop"]
+                  colnames(rice)[colnames(rice) != "pop"],
+                  selected = "Seed number per panicle"
       ),
       checkboxGroupInput("pops",
                          "Choose population(s) to plot:",
-                         unique(sort(rice$pop))
+                         unique(sort(rice$pop)),
+                         selected = c("1", "2", "3", "4")
       )),
     
     # Show a plot of the generated distribution
