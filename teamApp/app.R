@@ -51,14 +51,19 @@ server <- function(input, output) {
     
     plotTrait1 <- as.name(input$trait1)
     plotTrait2 <- as.name(input$trait2)
-   # plotPops <- as.name(input$pops)
   
     pl <- rice %>% 
       filter(pop %in% input$pops) %>% 
       ggplot(rice, mapping = aes(x = !! plotTrait1,
                                  y = !! plotTrait2,
-                                 fill=pop
-                             ))
+                                 color = pop)) +
+      labs(
+        title = paste(input$trait1, "vs", input$trait2, "by Population"),
+        x = input$trait1,
+        y = input$trait2,
+        color = "Population"
+      ) +
+      scale_fill_brewer(palette = "Dark2")
     
     pl + geom_point() + scale_fill_discrete()
   
